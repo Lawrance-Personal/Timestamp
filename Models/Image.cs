@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Timestamp_Backend.Services.Firebase;
+using Timestamp_Backend.Services.Token;
 
 namespace Timestamp_Backend.Models;
 
@@ -14,28 +14,28 @@ public class Image
     public string Url { get; set; } = null!;
 }
 
-public record ReturnImageRecord
+public record ReturnUnauthorizedImageRecord
 {
     [BsonElement("Image")]
     public Image Image { get; set; } = null!;
 
-    public static ReturnImageRecord FromImage(Image image)
+    public static ReturnUnauthorizedImageRecord FromImage(Image image)
     {
-        return new ReturnImageRecord
+        return new ReturnUnauthorizedImageRecord
         {
             Image = image,
         };
     }
 }
 
-public record ReturnImagesRecord
+public record ReturnUnauthorizedImagesRecord
 {
     [BsonElement("Images")]
     public List<Image> Images { get; set; } = [];
 
-    public static ReturnImagesRecord FromImages(List<Image> images)
+    public static ReturnUnauthorizedImagesRecord FromImages(List<Image> images)
     {
-        return new ReturnImagesRecord
+        return new ReturnUnauthorizedImagesRecord
         {
             Images = images,
         };
@@ -52,6 +52,21 @@ public record CreateImageRecord
         return new Image
         {
             Url = Url
+        };
+    }
+}
+
+public record UpdateImageRecord
+{
+    [BsonElement("Url")]
+    public string Url { get; set; } = null!;
+
+    public Image Update(Image image)
+    {
+        return new Image
+        {
+            Id = image.Id,
+            Url = Url?? image.Url
         };
     }
 }

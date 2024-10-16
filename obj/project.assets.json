@@ -2040,11 +2040,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Coding Environment\\Timestamp_Backend\\Timestamp_Backend.csproj",
+      "projectUniqueName": "D:\\Coding Environment\\Timestamp\\Timestamp_Backend.csproj",
       "projectName": "Timestamp_Backend",
-      "projectPath": "D:\\Coding Environment\\Timestamp_Backend\\Timestamp_Backend.csproj",
+      "projectPath": "D:\\Coding Environment\\Timestamp\\Timestamp_Backend.csproj",
       "packagesPath": "C:\\Users\\lawra\\.nuget\\packages\\",
-      "outputPath": "D:\\Coding Environment\\Timestamp_Backend\\obj\\",
+      "outputPath": "D:\\Coding Environment\\Timestamp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\lawra\\AppData\\Roaming\\NuGet\\NuGet.Config"

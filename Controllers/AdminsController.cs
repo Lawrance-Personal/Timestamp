@@ -35,11 +35,11 @@ public class AdminsController(MongoDBServices database, IAuthenticationServices 
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AuthToken>> Login(LoginRecord credential)
+    public async Task<ActionResult<ReturnAuthorizedAdminRecord>> Login(LoginRecord credential)
     {
         AuthToken? token = await _authenticationService.Login(credential.Email, credential.Password);
         if(token.IdToken == null) return BadRequest("Invalid Credential");
-        return token;
+        return Ok(ReturnAuthorizedAdminRecord.FromAdmin(await _database.Admins.Find(p => p.IdentityId == token.IdentityId).FirstOrDefaultAsync(), token));
     }
 
     [HttpGet]
