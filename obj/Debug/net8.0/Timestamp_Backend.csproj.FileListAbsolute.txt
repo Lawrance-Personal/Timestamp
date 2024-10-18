@@ -123,3 +123,5 @@ D:\Coding Environment\Timestamp\obj\Debug\net8.0\ref\Timestamp_Backend.dll
 D:\Coding Environment\Timestamp\bin\Debug\net8.0\appsettings.Development.json
 D:\Coding Environment\Timestamp\bin\Debug\net8.0\appsettings.json
 D:\Coding Environment\Timestamp\bin\Debug\net8.0\firebase.json
+D:\Coding Environment\Timestamp\obj\Debug\net8.0\Timestamp_Backend.RazorAssemblyInfo.cache
+D:\Coding Environment\Timestamp\obj\Debug\net8.0\Timestamp_Backend.RazorAssemblyInfo.cs

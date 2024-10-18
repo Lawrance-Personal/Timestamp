@@ -79,8 +79,8 @@ public class AdminsController(MongoDBServices database, IAuthenticationServices 
         }
         Admin admin = await _database.Admins.Find(p => p.Id == id).FirstOrDefaultAsync();
         if(admin == null) return NotFound();
-        Admin updated = adminIn.Update(admin);
-        await _database.Admins.ReplaceOneAsync(p => p.Id == id, updated);
+        admin = adminIn.Update(admin);
+        await _database.Admins.ReplaceOneAsync(p => p.Id == id, admin);
         if(adminIn.Email != null) _authenticationService.UpdateEmail(admin.IdentityId, adminIn.Email);
         if(adminIn.Password != null) _authenticationService.UpdatePassword(admin.IdentityId, adminIn.Password);
         return Ok(newToken);
@@ -100,6 +100,6 @@ public class AdminsController(MongoDBServices database, IAuthenticationServices 
         if(admin == null) return NotFound();
         _authenticationService.Unregister(admin.IdentityId);
         await _database.Admins.DeleteOneAsync(p => p.Id == id);
-        return newToken;
+        return Ok(newToken);
     }
 }

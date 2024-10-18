@@ -40,18 +40,3 @@ public record CreateVideoRecord
         };
     }
 }
-
-public record UpdateVideoRecord
-{
-    [BsonElement("Url")]
-    public string Url { get; set; } = null!;
-
-    public Video Update(Video video)
-    {
-        return new Video
-        {
-            Id = video.Id,
-            Url = Url?? video.Url
-        };
-    }
-}

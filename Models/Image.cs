@@ -55,18 +55,3 @@ public record CreateImageRecord
         };
     }
 }
-
-public record UpdateImageRecord
-{
-    [BsonElement("Url")]
-    public string Url { get; set; } = null!;
-
-    public Image Update(Image image)
-    {
-        return new Image
-        {
-            Id = image.Id,
-            Url = Url?? image.Url
-        };
-    }
-}

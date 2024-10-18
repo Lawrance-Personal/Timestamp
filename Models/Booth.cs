@@ -68,20 +68,6 @@ public record ReturnUnauthorizedBoothRecord
     }
 }
 
-public record ReturnUnauthorizedBoothsRecord
-{
-    [BsonElement("Booths")]
-    public List<Booth> Booths { get; set; } = [];
-
-    public static ReturnUnauthorizedBoothsRecord FromBooths(List<Booth> booths)
-    {
-        return new ReturnUnauthorizedBoothsRecord
-        {
-            Booths = booths
-        };
-    }
-}
-
 public record CreateBoothRecord
 {
     [BsonElement("Title")]

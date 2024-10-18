@@ -51,20 +51,3 @@ public record ReturnAuthorizedLogsRecord
         };
     }
 }
-
-public record CreateLogRecord
-{
-    [BsonElement("Message")]
-    public string Message { get; set; } = null!;
-    [BsonElement("AdminId")]
-    public string AdminId { get; set; } = null!;
-
-    public Log ToLog()
-    {
-        return new Log
-        {
-            Message = Message,
-            AdminId = AdminId
-        };
-    }
-}

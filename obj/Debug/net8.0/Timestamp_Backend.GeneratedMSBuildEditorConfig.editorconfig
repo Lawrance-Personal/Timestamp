@@ -17,3 +17,11 @@ build_property.SupportLocalizedComponentNames =
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
 build_property.MSBuildProjectDirectory = D:\Coding Environment\Timestamp
 build_property._RazorSourceGeneratorDebug = 
+
+[D:/Coding Environment/Timestamp/Views/Pages/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFnZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Coding Environment/Timestamp/Views/Pages/Invalid.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFnZXNcSW52YWxpZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 

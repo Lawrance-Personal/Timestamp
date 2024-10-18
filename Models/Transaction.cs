@@ -60,12 +60,15 @@ public record ReturnUnauthorizedTransactionRecord
 {
     [BsonElement("Transaction")]
     public Transaction Transaction { get; set; } = null!;
+    [BsonElement("PageId")]
+    public string PageId { get; set; } = null!;
     
-    public static ReturnUnauthorizedTransactionRecord FromTransaction(Transaction transaction)
+    public static ReturnUnauthorizedTransactionRecord FromTransaction(Transaction transaction, Page page)
     {
         return new ReturnUnauthorizedTransactionRecord
         {
-            Transaction = transaction
+            Transaction = transaction,
+            PageId = page.Id
         };
     }
 }
@@ -78,6 +81,10 @@ public record CreateTransactionRecord
     public double Amount { get; set; } = 0;
     [BsonElement("PaymentType")]
     public string PaymentType { get; set; } = null!;
+    [BsonElement("ImageIds")]
+    public List<string> ImageIds { get; set; } = [];
+    [BsonElement("VideoId")]
+    public string VideoId { get; set; } = null!;
     
     public Transaction ToTransaction()
     {
@@ -86,6 +93,15 @@ public record CreateTransactionRecord
             BoothId = BoothId,
             Amount = Amount,
             PaymentType = PaymentType,
+        };
+    }
+
+    public Page ToPage()
+    {
+        return new Page
+        {
+            ImageIds = ImageIds,
+            VideoId = VideoId
         };
     }
 }

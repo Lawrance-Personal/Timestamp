@@ -38,6 +38,7 @@ builder.Services.AddHttpClient<IRefreshTokenServices, RefreshTokenServices>((ser
 builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtOptions => ValidateTokenServices.ConfigureJwtOptions(jwtOptions, builder.Configuration));
 
 builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
