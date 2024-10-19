@@ -28,7 +28,6 @@ public class LogsController(MongoDBServices database, IAuthenticationServices au
         }
         return Ok(ReturnAuthorizedLogsRecord.FromLogs(await _database.Logs.Find(_ => true).ToListAsync(), newToken));
     }
-
     [HttpGet("{id}")]
     [Authorize]
     public async Task<ActionResult<ReturnAuthorizedLogRecord>> GetById([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
@@ -40,5 +39,17 @@ public class LogsController(MongoDBServices database, IAuthenticationServices au
             if(newToken.IdToken is null) return Unauthorized("Token Expired");
         }
         return Ok(ReturnAuthorizedLogRecord.FromLog(await _database.Logs.Find(p => p.Id == id).FirstOrDefaultAsync(), newToken));
+    }
+    [HttpGet("admin")]
+    [Authorize]
+    public async Task<ActionResult<ReturnAuthorizedLogsRecord>> GetByAdminId([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
+    {
+        var tokenArr = token.Split(" ");
+        var newToken = ValidateTokenServices.ToToken(tokenArr[1], refreshToken);
+        if(ValidateTokenServices.TokenIsExpired(tokenArr[1])){
+            newToken = await _authenticationService.RefreshToken(refreshToken);
+            if(newToken.IdToken is null) return Unauthorized("Token Expired");
+        }
+        return Ok(ReturnAuthorizedLogsRecord.FromLogs(await _database.Logs.Find(p => p.AdminId == id).ToListAsync(), newToken));
     }
 }

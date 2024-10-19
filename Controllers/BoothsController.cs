@@ -28,6 +28,11 @@ public class BoothsController(MongoDBServices database, IAuthenticationServices 
         }
         Booth booth = createBooth.ToBooth();
         await _database.Booths.InsertOneAsync(booth);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Created Booth " + booth.Title,
+        });
         return CreatedAtRoute(new {id = booth.Id}, ReturnAuthorizedBoothRecord.FromBooth(booth, newToken));
     }
 
@@ -72,6 +77,11 @@ public class BoothsController(MongoDBServices database, IAuthenticationServices 
         if(booth is null) return NotFound();
         booth = updateBooth.Update(booth);
         await _database.Booths.ReplaceOneAsync(p => p.Id == id, booth);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Updated Booth " + booth.Title,
+        });
         return Ok(newToken);
     }
 
@@ -88,6 +98,11 @@ public class BoothsController(MongoDBServices database, IAuthenticationServices 
         Booth booth = await _database.Booths.Find(p => p.Id == id).FirstOrDefaultAsync();
         if(booth is null) return NotFound();
         await _database.Booths.DeleteOneAsync(p => p.Id == id);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Deleted Booth " + booth.Title,
+        });
         return Ok(newToken);
     }
 

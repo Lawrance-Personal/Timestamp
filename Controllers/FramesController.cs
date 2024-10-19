@@ -28,6 +28,11 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
         }
         Frame frame = createFrame.ToFrame();
         await _database.Frames.InsertOneAsync(frame);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Created Frame " + frame.Name,
+        });
         return CreatedAtRoute(new {id = frame.Id}, ReturnAuthorizedFrameRecord.FromFrame(frame, newToken));
     }
 
@@ -58,6 +63,18 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
         if(frame is null) return NotFound();
         return Ok(ReturnAuthorizedFrameRecord.FromFrame(frame, newToken));
     }
+    [HttpGet("admin/theme")]
+    [Authorize]
+    public async Task<ActionResult<ReturnAuthorizedFramesRecord>> GetByThemeId([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
+    {
+        var tokenArr = token.Split(" ");
+        var newToken = ValidateTokenServices.ToToken(tokenArr[1], refreshToken);
+        if(ValidateTokenServices.TokenIsExpired(tokenArr[1])){
+            newToken = await _authenticationService.RefreshToken(refreshToken);
+            if(newToken.IdToken is null) return Unauthorized("Token Expired");
+        }
+        return Ok(ReturnAuthorizedFramesRecord.FromFrames(await _database.Frames.Find(p => p.ThemeId == id).ToListAsync(), newToken));
+    }
 
     [HttpPut("admin/{id}")]
     [Authorize]
@@ -73,6 +90,11 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
         if(frame is null) return NotFound();
         frame = updateFrame.Update(frame);
         await _database.Frames.ReplaceOneAsync(p => p.Id == id, frame);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Updated Frame " + frame.Name,
+        });
         return Ok(newToken);
     }
 
@@ -89,6 +111,11 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
         Frame frame = await _database.Frames.Find(p => p.Id == id).FirstOrDefaultAsync();
         if(frame is null) return NotFound();
         await _database.Frames.DeleteOneAsync(p => p.Id == id);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Deleted Frame " + frame.Name,
+        });
         return Ok(newToken);
     }
 
@@ -101,5 +128,10 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
     public async Task<ActionResult<ReturnUnauthorizedFrameRecord>> GetByIdForClient(string id)
     {
         return Ok(ReturnUnauthorizedFrameRecord.FromFrame(await _database.Frames.Find(p => p.Id == id).FirstOrDefaultAsync()));
+    }
+    [HttpGet("client/theme")]
+    public async Task<ActionResult<ReturnUnauthorizedFramesRecord>> GetByThemeIdForClient(string id)
+    {
+        return Ok(ReturnUnauthorizedFramesRecord.FromFrames(await _database.Frames.Find(p => p.ThemeId == id).ToListAsync()));
     }
 }

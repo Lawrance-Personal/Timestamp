@@ -40,6 +40,18 @@ public class TransactionsController(MongoDBServices database, IAuthenticationSer
         }
         return Ok(ReturnAuthorizedTransactionRecord.FromTransaction(await _database.Transactions.Find(p => p.Id == id).FirstOrDefaultAsync(), newToken));
     }
+    [HttpGet("admin/booth")]
+    [Authorize]
+    public async Task<ActionResult<ReturnAuthorizedTransactionRecord>> GetByBooth([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
+    {
+        var tokenArr = token.Split(" ");
+        var newToken = ValidateTokenServices.ToToken(tokenArr[1], refreshToken);
+        if(ValidateTokenServices.TokenIsExpired(tokenArr[1])){
+            newToken = await _authenticationService.RefreshToken(refreshToken);
+            if(newToken.IdToken is null) return Unauthorized("Token Expired");
+        }
+        return Ok(ReturnAuthorizedTransactionRecord.FromTransaction(await _database.Transactions.Find(p => p.BoothId == id).FirstOrDefaultAsync(), newToken));
+    }
 
     [HttpPost("client")]
     public async Task<ActionResult<ReturnUnauthorizedTransactionRecord>> Create(CreateTransactionRecord createTransaction)

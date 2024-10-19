@@ -12,6 +12,8 @@ public class Image
     public string Id { get; set; } = null!;
     [BsonElement("Url")]
     public string Url { get; set; } = null!;
+    [BsonElement("CreatedAt")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public record ReturnUnauthorizedImageRecord

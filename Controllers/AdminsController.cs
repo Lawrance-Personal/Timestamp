@@ -31,6 +31,11 @@ public class AdminsController(MongoDBServices database, IAuthenticationServices 
         if(identityId == null) return BadRequest("Email Address Already Exist");
         admin.IdentityId = identityId;
         await _database.Admins.InsertOneAsync(admin);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Created New Admin " + admin.Name,
+        });
         return CreatedAtRoute(new {id = admin.Id}, ReturnAuthorizedAdminRecord.FromAdmin(admin, newToken));
     }
 
@@ -39,6 +44,11 @@ public class AdminsController(MongoDBServices database, IAuthenticationServices 
     {
         AuthToken? token = await _authenticationService.Login(credential.Email, credential.Password);
         if(token.IdToken == null) return BadRequest("Invalid Credential");
+        Admin a = await _database.Admins.Find(p => p.IdentityId == token.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Logged In",
+        });
         return Ok(ReturnAuthorizedAdminRecord.FromAdmin(await _database.Admins.Find(p => p.IdentityId == token.IdentityId).FirstOrDefaultAsync(), token));
     }
 
@@ -83,6 +93,10 @@ public class AdminsController(MongoDBServices database, IAuthenticationServices 
         await _database.Admins.ReplaceOneAsync(p => p.Id == id, admin);
         if(adminIn.Email != null) _authenticationService.UpdateEmail(admin.IdentityId, adminIn.Email);
         if(adminIn.Password != null) _authenticationService.UpdatePassword(admin.IdentityId, adminIn.Password);
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = admin.Id,
+            Message = "Updated Admin " + admin.Name,
+        });
         return Ok(newToken);
     }
 
@@ -100,6 +114,11 @@ public class AdminsController(MongoDBServices database, IAuthenticationServices 
         if(admin == null) return NotFound();
         _authenticationService.Unregister(admin.IdentityId);
         await _database.Admins.DeleteOneAsync(p => p.Id == id);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Deleted Admin " + admin.Name,
+        });
         return Ok(newToken);
     }
 }

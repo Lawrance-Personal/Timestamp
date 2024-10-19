@@ -28,6 +28,11 @@ public class ThemesController(MongoDBServices database, IAuthenticationServices 
         }
         Theme theme = createTheme.ToTheme();
         await _database.Themes.InsertOneAsync(theme);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Created Theme " + theme.Name,
+        });
         return CreatedAtRoute(new {id = theme.Id}, ReturnAuthorizedThemeRecord.FromTheme(theme, newToken));
     }
 
@@ -55,6 +60,20 @@ public class ThemesController(MongoDBServices database, IAuthenticationServices 
         }
         return Ok(ReturnAuthorizedThemeRecord.FromTheme(await _database.Themes.Find(p => p.Id == id).FirstOrDefaultAsync(), newToken));
     }
+    [HttpGet("admin/booth")]
+    [Authorize]
+    public async Task<ActionResult<ReturnAuthorizedThemeRecord>> GetByBoothId([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
+    {
+        var tokenArr = token.Split(" ");
+        var newToken = ValidateTokenServices.ToToken(tokenArr[1], refreshToken);
+        if(ValidateTokenServices.TokenIsExpired(tokenArr[1])){
+            newToken = await _authenticationService.RefreshToken(refreshToken);
+            if(newToken.IdToken is null) return Unauthorized("Token Expired");
+        }
+        Booth booth = await _database.Booths.Find(p => p.Id == id).FirstOrDefaultAsync();
+        if(booth is null) return NotFound();
+        return Ok(ReturnAuthorizedThemeRecord.FromTheme(await _database.Themes.Find(p => p.Id == booth.Id).FirstOrDefaultAsync(), newToken));
+    }
 
     [HttpPut("admin/{id}")]
     [Authorize]
@@ -70,6 +89,11 @@ public class ThemesController(MongoDBServices database, IAuthenticationServices 
         if(theme is null) return NotFound();
         theme = updateTheme.Update(theme);
         await _database.Themes.ReplaceOneAsync(p => p.Id == id, theme);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Updated Theme " + theme.Name,
+        });
         return Ok(newToken);
     }
 
@@ -86,6 +110,11 @@ public class ThemesController(MongoDBServices database, IAuthenticationServices 
         Theme theme = await _database.Themes.Find(p => p.Id == id).FirstOrDefaultAsync();
         if(theme is null) return NotFound();
         await _database.Themes.DeleteOneAsync(p => p.Id == id);
+        Admin a = await _database.Admins.Find(p => p.IdentityId == newToken.IdentityId).FirstOrDefaultAsync();
+        await _database.Logs.InsertOneAsync(new Log{
+            AdminId = a.Id,
+            Message = "Deleted Theme " + theme.Name,
+        });
         return Ok(newToken);
     }
 
@@ -98,5 +127,12 @@ public class ThemesController(MongoDBServices database, IAuthenticationServices 
     public async Task<ActionResult<ReturnUnauthorizedThemeRecord>> GetByIdForClient(string id)
     {
         return Ok(ReturnUnauthorizedThemeRecord.FromTheme(await _database.Themes.Find(p => p.Id == id).FirstOrDefaultAsync()));
+    }
+    [HttpGet("client/booth")]
+    public async Task<ActionResult<ReturnUnauthorizedThemeRecord>> GetByBoothIdForClient(string id)
+    {
+        Booth booth = await _database.Booths.Find(p => p.Id == id).FirstOrDefaultAsync();
+        if(booth is null) return NotFound();
+        return Ok(ReturnUnauthorizedThemeRecord.FromTheme(await _database.Themes.Find(p => p.Id == booth.Id).FirstOrDefaultAsync()));
     }
 }

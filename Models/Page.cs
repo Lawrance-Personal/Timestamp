@@ -13,4 +13,6 @@ public class Page
     public List<string> ImageIds { get; set; } = [];
     [BsonElement("VideoId")]
     public string VideoId { get; set; } = null!;
+    [BsonElement("CreatedAt")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
