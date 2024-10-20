@@ -59,9 +59,7 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
             newToken = await _authenticationService.RefreshToken(refreshToken);
             if(newToken.IdToken is null) return Unauthorized("Token Expired");
         }
-        Frame frame = await _database.Frames.Find(p => p.Id == id).FirstOrDefaultAsync();
-        if(frame is null) return NotFound();
-        return Ok(ReturnAuthorizedFrameRecord.FromFrame(frame, newToken));
+        return Ok(ReturnAuthorizedFrameRecord.FromFrame(await _database.Frames.Find(p => p.Id == id).FirstOrDefaultAsync(), newToken));
     }
     [HttpGet("admin/theme")]
     [Authorize]
@@ -74,6 +72,20 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
             if(newToken.IdToken is null) return Unauthorized("Token Expired");
         }
         return Ok(ReturnAuthorizedFramesRecord.FromFrames(await _database.Frames.Find(p => p.ThemeId == id).ToListAsync(), newToken));
+    }
+    [HttpGet("admin/booth")]
+    [Authorize]
+    public async Task<ActionResult<ReturnAuthorizedFramesRecord>> GetByBoothId([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
+    {
+        var tokenArr = token.Split(" ");
+        var newToken = ValidateTokenServices.ToToken(tokenArr[1], refreshToken);
+        if(ValidateTokenServices.TokenIsExpired(tokenArr[1])){
+            newToken = await _authenticationService.RefreshToken(refreshToken);
+            if(newToken.IdToken is null) return Unauthorized("Token Expired");
+        }
+        Booth booth = await _database.Booths.Find(p => p.Id == id).FirstOrDefaultAsync();
+        if(booth is null) return NotFound();
+        return Ok(ReturnAuthorizedFramesRecord.FromFrames(await _database.Frames.Find(p => booth.FrameIds.Contains(p.Id)).ToListAsync(), newToken));
     }
 
     [HttpPut("admin/{id}")]
@@ -133,5 +145,12 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
     public async Task<ActionResult<ReturnUnauthorizedFramesRecord>> GetByThemeIdForClient(string id)
     {
         return Ok(ReturnUnauthorizedFramesRecord.FromFrames(await _database.Frames.Find(p => p.ThemeId == id).ToListAsync()));
+    }
+    [HttpGet("client/booth")]
+    public async Task<ActionResult<ReturnUnauthorizedFramesRecord>> GetByBoothIdForClient(string id)
+    {
+        Booth booth = await _database.Booths.Find(p => p.Id == id).FirstOrDefaultAsync();
+        if(booth is null) return NotFound();
+        return Ok(ReturnUnauthorizedFramesRecord.FromFrames(await _database.Frames.Find(p => booth.FrameIds.Contains(p.Id)).ToListAsync()));
     }
 }

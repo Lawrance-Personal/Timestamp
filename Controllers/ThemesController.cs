@@ -74,6 +74,20 @@ public class ThemesController(MongoDBServices database, IAuthenticationServices 
         if(booth is null) return NotFound();
         return Ok(ReturnAuthorizedThemeRecord.FromTheme(await _database.Themes.Find(p => p.Id == booth.Id).FirstOrDefaultAsync(), newToken));
     }
+    [HttpGet("admin/frame")]
+    [Authorize]
+    public async Task<ActionResult<ReturnAuthorizedThemesRecord>> GetByFrameId([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
+    {
+        var tokenArr = token.Split(" ");
+        var newToken = ValidateTokenServices.ToToken(tokenArr[1], refreshToken);
+        if(ValidateTokenServices.TokenIsExpired(tokenArr[1])){
+            newToken = await _authenticationService.RefreshToken(refreshToken);
+            if(newToken.IdToken is null) return Unauthorized("Token Expired");
+        }
+        Frame frame = await _database.Frames.Find(p => p.Id == id).FirstOrDefaultAsync();
+        if(frame is null) return NotFound();
+        return Ok(ReturnAuthorizedThemeRecord.FromTheme(await _database.Themes.Find(p => p.Id == frame.ThemeId).FirstOrDefaultAsync(), newToken));
+    }
 
     [HttpPut("admin/{id}")]
     [Authorize]
@@ -134,5 +148,12 @@ public class ThemesController(MongoDBServices database, IAuthenticationServices 
         Booth booth = await _database.Booths.Find(p => p.Id == id).FirstOrDefaultAsync();
         if(booth is null) return NotFound();
         return Ok(ReturnUnauthorizedThemeRecord.FromTheme(await _database.Themes.Find(p => p.Id == booth.Id).FirstOrDefaultAsync()));
+    }
+    [HttpGet("client/frame")]
+    public async Task<ActionResult<ReturnUnauthorizedThemeRecord>> GetByFrameIdForClient(string id)
+    {
+        Frame frame = await _database.Frames.Find(p => p.Id == id).FirstOrDefaultAsync();
+        if(frame is null) return NotFound();
+        return Ok(ReturnUnauthorizedThemeRecord.FromTheme(await _database.Themes.Find(p => p.Id == frame.ThemeId).FirstOrDefaultAsync()));
     }
 }
