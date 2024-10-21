@@ -48,7 +48,7 @@ public class BoothsController(MongoDBServices database, IAuthenticationServices 
         }
         return Ok(ReturnAuthorizedBoothsRecord.FromBooths(await _database.Booths.Find(_ => true).ToListAsync(), newToken));
     }
-    [HttpGet("admin/{id}")]
+    [HttpGet("admin/id")]
     [Authorize]
     public async Task<ActionResult<ReturnAuthorizedBoothRecord>> GetById([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
     {

@@ -49,7 +49,7 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
         return Ok(ReturnAuthorizedFramesRecord.FromFrames(await _database.Frames.Find(_ => true).ToListAsync(), newToken));
     }
     
-    [HttpGet("admin/{id}")]
+    [HttpGet("admin/id")]
     [Authorize]
     public async Task<ActionResult<ReturnAuthorizedFrameRecord>> GetById([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
     {
@@ -86,6 +86,18 @@ public class FramesController(MongoDBServices database, IAuthenticationServices 
         Booth booth = await _database.Booths.Find(p => p.Id == id).FirstOrDefaultAsync();
         if(booth is null) return NotFound();
         return Ok(ReturnAuthorizedFramesRecord.FromFrames(await _database.Frames.Find(p => booth.FrameIds.Contains(p.Id)).ToListAsync(), newToken));
+    }
+    [HttpGet("admin/count")]
+    [Authorize]
+    public async Task<ActionResult<ReturnAuthorizedFramesRecord>> GetByCount([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, int count)
+    {
+        var tokenArr = token.Split(" ");
+        var newToken = ValidateTokenServices.ToToken(tokenArr[1], refreshToken);
+        if(ValidateTokenServices.TokenIsExpired(tokenArr[1])){
+            newToken = await _authenticationService.RefreshToken(refreshToken);
+            if(newToken.IdToken is null) return Unauthorized("Token Expired");
+        }
+        return Ok(ReturnAuthorizedFramesRecord.FromFrames(await _database.Frames.Find(p => p.PictureCount == count).ToListAsync(), newToken));
     }
 
     [HttpPut("admin/{id}")]

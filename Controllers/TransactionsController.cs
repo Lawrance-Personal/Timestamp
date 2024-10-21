@@ -28,7 +28,7 @@ public class TransactionsController(MongoDBServices database, IAuthenticationSer
         }
         return Ok(ReturnAuthorizedTransactionsRecord.FromTransactions(await _database.Transactions.Find(_ => true).ToListAsync(), newToken));
     }
-    [HttpGet("admin/{id}")]
+    [HttpGet("admin/id")]
     [Authorize]
     public async Task<ActionResult<ReturnAuthorizedTransactionRecord>> GetById([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
     {

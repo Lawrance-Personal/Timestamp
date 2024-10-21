@@ -22,7 +22,7 @@ public class VideosController(MongoDBServices database, IAuthenticationServices 
         return CreatedAtRoute(new { id = video.Id }, ReturnUnauthorizedVideoRecord.FromVideo(video));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("id")]
     public async Task<ActionResult<ReturnUnauthorizedVideoRecord>> GetById(string id)
     {
         return Ok(ReturnUnauthorizedVideoRecord.FromVideo(await _database.Videos.Find(p => p.Id == id).FirstOrDefaultAsync()));

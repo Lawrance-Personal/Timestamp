@@ -28,7 +28,7 @@ public class LogsController(MongoDBServices database, IAuthenticationServices au
         }
         return Ok(ReturnAuthorizedLogsRecord.FromLogs(await _database.Logs.Find(_ => true).ToListAsync(), newToken));
     }
-    [HttpGet("{id}")]
+    [HttpGet("id")]
     [Authorize]
     public async Task<ActionResult<ReturnAuthorizedLogRecord>> GetById([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
     {

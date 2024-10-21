@@ -18,8 +18,6 @@ public class Transaction
     public string PaymentType { get; set; } = null!;
     [BsonElement("Timestamp")]
     public string Timestamp { get; set; } = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString();
-    [BsonElement("PageId")]
-    public string PageId { get; set; } = null!;
 }
 
 public record ReturnAuthorizedTransactionRecord

@@ -48,7 +48,7 @@ public class ThemesController(MongoDBServices database, IAuthenticationServices 
         }
         return Ok(ReturnAuthorizedThemesRecord.FromThemes(await _database.Themes.Find(_ => true).ToListAsync(), newToken));
     }
-    [HttpGet("admin/{id}")]
+    [HttpGet("admin/id")]
     [Authorize]
     public async Task<ActionResult<ReturnAuthorizedThemeRecord>> GetById([FromHeader(Name = "Authorization")] string token, [FromHeader(Name = "Refresh-Token")] string refreshToken, string id)
     {

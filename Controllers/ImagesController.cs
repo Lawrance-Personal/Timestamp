@@ -27,7 +27,7 @@ public class ImagesController(MongoDBServices database, IAuthenticationServices 
     {
         return Ok(ReturnUnauthorizedImagesRecord.FromImages(await _database.Images.Find(p => true).ToListAsync()));
     }
-    [HttpGet("{id}")]
+    [HttpGet("id")]
     public async Task<ActionResult<ReturnUnauthorizedImageRecord>> GetById(string id)
     {
         return Ok(ReturnUnauthorizedImageRecord.FromImage(await _database.Images.Find(p => p.Id == id).FirstOrDefaultAsync()));
